@@ -47,6 +47,36 @@ def extract_mfcc(segment, sr=16000, n_mfcc=40, n_fft=512, hop_length=256):
     return mfccs
 
 
+def extract_agg_mfcc(segments, sr=16000, n_mfcc=40, n_fft=512, hop_length=256):
+    """
+    Extracts aggregated MFCC by computing the mean and standard 
+    deviation from an audio segments.
+
+    Args:
+    - segments: NumPy array containing the audio signal.
+    - sr: Sampling rate (default is 16,000 Hz).
+    - n_mfcc: Number of MFCCs to return (default is 40).
+    - n_fft: Length of the FFT window (default is 512).
+    - hop_length: Number of samples between successive frames (default is 256).
+
+    Returns:
+    - features: A NumPy array of shape (num_segments, n_mfcc*2)
+    """
+    features = []
+    for idx, y in enumerate(segments):
+        # Compute MFCC features from the audio signal
+        mfcc = librosa.feature.mfcc(y=y, sr=sr, n_mfcc=n_mfcc, n_fft=n_fft, hop_length=hop_length)
+        
+        # Aggregate MFCCs by computing the mean and standard deviation
+        mfcc_mean = np.mean(mfcc, axis=1)
+        mfcc_std = np.std(mfcc, axis=1)
+        
+        # Concatenate mean and std to form a feature vector
+        feature_vector = np.concatenate((mfcc_mean, mfcc_std))
+        features.append(feature_vector)
+    return np.array(features)
+
+
 def plot_mfccs(mfccs):
     plt.figure(figsize=(10, 4))
     librosa.display.specshow(mfccs, x_axis='time')
