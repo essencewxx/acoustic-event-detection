@@ -85,6 +85,7 @@ def plot_mfccs(mfccs):
     plt.tight_layout()
     plt.show()
 
+    
 def plot_log_spectrogram(log_spectrogram):
     plt.figure(figsize=(10, 4))
     librosa.display.specshow(log_spectrogram, sr=16000, hop_length=512, x_axis='time', y_axis='mel')
