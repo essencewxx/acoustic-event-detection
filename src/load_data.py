@@ -152,6 +152,63 @@ def load_negative_data(
     return segments
 
 
+def load_and_segment_wav(
+    audio_file,
+    sample_rate=16000,
+    segment_duration=0.5,
+    overlap_duration=0.0
+    ):
+    """
+    Loads a .wav audio file and segments it into fixed-length audio chunks.
+    
+    Parameters:
+    - audio_file: Path to the .wav audio file.
+    - sample_rate: Sampling rate for loading audio files.
+    - segment_duration: Duration of each audio segment in seconds.  
+    - overlap_duration: Duration of overlap between consecutive audio segments in seconds.
+            Default is 0.0 (no overlap).
+
+    Returns:
+    audio_segments (List[np.ndarray]): A list where each element represents a audio segment.
+    
+    Raises:
+    - TypeError: If input audio is not mono.
+    - ValueError: 
+    """
+    # Load the audio file
+    audio, sr = librosa.load(audio_file, sr=sample_rate, mono=False)
+    if audio.ndim != 1:
+        raise TypeError(f"Input audio file at {audio_file} is not mono.")
+
+    # Calculate the number of samples per segment
+    samples_per_segment = int(segment_duration * sample_rate)
+    
+    # Calculate hop length (number of samples to step for the next segment)
+    hop_length = samples_per_segment - int(overlap_duration * sample_rate)
+    if hop_length <= 0:
+        raise ValueError("Overlap duration must be smaller than segment duration.")
+    
+    # Calculate the total number of segments
+    num_segments = int(np.ceil((len(audio) - samples_per_segment) / hop_length)) + 1
+    
+    # Initialize list to hold audio segments
+    audio_segments = []
+    
+    for i in range(num_segments):
+        start_sample = i * hop_length
+        end_sample = start_sample + samples_per_segment
+        segment = audio[start_sample:end_sample]
+        
+        # If the segment is shorter than expected, pad it with zeros
+        if len(segment) < samples_per_segment:
+            padding = samples_per_segment - len(segment)
+            segment = np.pad(segment, (0, padding), mode='constant')
+        
+        audio_segments.append(segment)
+    
+    return audio_segments
+
+
 def get_segment_statistics(audio_segments):
     """
     Calculate the min, max, 25%, mean, std, 75% number of samples of each audio segment.
