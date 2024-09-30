@@ -20,10 +20,19 @@ Welcome to the **SVM-Based Cough Detector** project! This tool uses machine lear
    pip install -r requirements.txt
 3. **Inference:**
    ```bash
-   python3 src/inference.py -m svm -i dir/contains/one/data.wav
-**Want to try your own data**: 
-- **File type**: The audio file needs to be saved in .wav formate with sample rate at 16KHz and is monophonic sound.
-- **File name**: The audio file needs to saved as `data.wav`
+   python3 src/inference.py --model svm --input-dir dir/contains/one/data.wav
+4. **Want to record your own audio files?**
+   ```bash
+   python3 src/record_audio.py --output-dir dir/to/save/the/recording --duration 5
+- **File type**: The audio file is saved in .wav formate with sample rate at 16KHz and is monophonic sound.
+- **File name**: The audio file is saved as `data.wav`
+5. **Usage example:**
+     ```bash
+   # Record a 5 second audio and save it to my_data/positive/cough_example
+   python3 src/record_audio.py --output-dir my_data/positive/cough_example --duration 5
+     
+   # Use the recorded audio for inferencing
+   python3 src/inference.py --model svm --input-dir my_data/positive/cough_example
    
 ## 🛠️ **How It Works**
 

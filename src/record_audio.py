@@ -1,3 +1,4 @@
+import sys
 import argparse
 from pathlib import Path
 import sounddevice as sd
@@ -12,7 +13,8 @@ def parse_args():
         "--output-dir", "-o",
         type=str,
         required=True,
-        help="Directory where the collected data is placed.")
+        default=".",
+        help="Directory to save the output WAV file (default: current directory)")
     
     parser.add_argument(
         "--duration", "-d",
@@ -21,6 +23,21 @@ def parse_args():
         help="Duration of the recording in seconds.")
 
     return parser.parse_args()
+
+
+def check_directory(directory):
+    """
+    Check if the specified directory exists. If it doesn't, create it.
+    
+    Parameters:
+    - directory: Path to the directory to ensure.
+    """
+    try:
+        Path(directory).mkdir(parents=True, exist_ok=True)
+        print(f"Directory '{directory}' is ready.")
+    except Exception as e:
+        print(f"Failed to create directory '{directory}': {e}")
+        sys.exit(1)
 
 
 def record_audio(filename, duration, fs=16000):
@@ -40,9 +57,14 @@ def record_audio(filename, duration, fs=16000):
 
 
 def main():
-    args = parse_args() 
+    args = parse_args()
+    output_dir = args.output_dir
+    filename = f"{output_dir}/data.wav"
 
-    record_audio(filename=args.output_dir, duration=args.duration, fs=16000)  
+    # Ensure the input directory exists
+    check_directory(output_dir)
+
+    record_audio(filename=filename, duration=args.duration, fs=16000)  
 
 if __name__ == "__main__":
     main()
